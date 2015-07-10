@@ -18,10 +18,16 @@ Programa : Trabalho 2 - Computaзгo Grбfica
 
 #define CP_MAXVERT 32
 #define CP_MAXPOLY 32
+
 #define CP_LEFT 0
 #define CP_RIGHT 1
 #define CP_TOP 2
 #define CP_BOTTOM 3
+
+#define CL_LEFT 0
+#define CL_RIGHT 1
+#define CL_BOTTOM 2
+#define CL_TOP 3
 
 #define NUMLINHAS 5
 
@@ -54,9 +60,10 @@ int showVerts = 0;
 int poligonoAtual = 0;
 
 // funcao que verifica se o ponto P esta dentro da janela R, em relacao ao lado SIDE
-int cp_inside( struct point p, struct rect r, int side )
+int cp_inside(struct point p, struct rect r, int side)
 {
-    switch( side ){
+    switch(side)
+    {
         case CP_LEFT:
             return p.x >= r.l;
         case CP_RIGHT:
@@ -69,16 +76,17 @@ int cp_inside( struct point p, struct rect r, int side )
 }
 
 // funcao que localiza ponto de interseccao do segmento PQ com a janela R, em relacao ao lado SIDE
-struct point cp_intersect( struct point p, struct point q, struct rect r, int side )
+struct point cp_intersect(struct point p, struct point q, struct rect r, int side)
 {
     struct point t;
     double a, b;
 
     /* find slope and intercept of segment pq */
-    a = ( q.y - p.y ) / ( q.x - p.x );
+    a = (q.y - p.y) / (q.x - p.x);
     b = p.y - p.x * a;
 
-    switch( side ){
+    switch(side)
+    {
         case CP_LEFT:
             t.x = r.l;
             t.y = t.x * a + b;
@@ -103,7 +111,7 @@ struct point cp_intersect( struct point p, struct point q, struct rect r, int si
 // funcao que recorta de fato o poligono, com relacao a um lado da janela de recorte
 // (retorna em *v o novo tamanho do vetor de pontos, e altera diretamente o vetor
 // de pontos passado por parametro)
-void cp_clipplane( int *v, struct point in[CP_MAXVERT], struct rect r, int side )
+void cp_clipplane(int *v, struct point in[CP_MAXVERT], struct rect r, int side)
 {
     int i, j=0;
     struct point s, p;
@@ -115,25 +123,30 @@ void cp_clipplane( int *v, struct point in[CP_MAXVERT], struct rect r, int side 
     // para cada ponto do poligono, verificar a cada 2 pontos (P e S),
     // a orientacao da aresta PS do poligono, em relacao a janela de recorte R,
     // considerando um de seus lados
-    for( i = 0 ; i < *v ; i++ ){
+    for(i = 0 ; i < *v ; i++)
+    {
         p = in[i];  // p = ponto da iteracao atual
 
         // se P esta dentro da janela de recorte
-        if( cp_inside( p, r, side ) ){
+        if(cp_inside(p, r, side))
+        {
             // se S nao esta dentro da janela de recorte
-            if( !cp_inside( s, r, side ) ){
+            if(!cp_inside(s, r, side))
+            {
                 // a aresta PS corta a janela R de dentro para fora,
                 // entao deve obter o ponto de interseccao
-                out[j] = cp_intersect( p, s, r, side );
+                out[j] = cp_intersect(p, s, r, side);
                 j++;
             }
             // acrescentar o ponto P, pois ele esta dentro da janela
             out[j] = p; j++;
         // se P esta fora da janela, mas S esta dentro
-        }else if( cp_inside( s, r, side ) ){
+        }
+        else if(cp_inside(s, r, side))
+        {
             // a aresta PS corta a janela R de fora para dentro,
             // entao deve obter o ponto de interseccao
-            out[j] = cp_intersect( s, p, r, side );
+            out[j] = cp_intersect(s, p, r, side);
             j++;
         }
 
@@ -143,13 +156,12 @@ void cp_clipplane( int *v, struct point in[CP_MAXVERT], struct rect r, int side 
 
     *v = j; // indicar o novo tamanho do vetor de pontos (pode ter sido alterado)
     // copiar todos os pontos obtidos para o vetor de pontos que foi informado inicialmente
-    for( i = 0 ; i < *v ; i++ ){
+    for(i = 0 ; i < *v ; i++)
         in[i] = out[i];
-    }
 }
 
 // funcao de recorte Sutherland-Hodgman
-void clipSH( int *v, int v2[CP_MAXPOLY], struct point p[CP_MAXPOLY][CP_MAXVERT], struct rect r )
+void clipSH(int *v, int v2[CP_MAXPOLY], struct point p[CP_MAXPOLY][CP_MAXVERT], struct rect r)
 {
     /*
       Esta funcao vai chamar a funcao cp_clipplane, que vai de fato fazer o recorte
@@ -158,13 +170,13 @@ void clipSH( int *v, int v2[CP_MAXPOLY], struct point p[CP_MAXPOLY][CP_MAXVERT],
     */
 
     // recortar a esquerda
-    cp_clipplane( &v2[poligonoAtual], p[poligonoAtual], r, CP_LEFT );
+    cp_clipplane(&v2[poligonoAtual], p[poligonoAtual], r, CP_LEFT);
     // recortar a direita
-    cp_clipplane( &v2[poligonoAtual], p[poligonoAtual], r, CP_RIGHT );
+    cp_clipplane(&v2[poligonoAtual], p[poligonoAtual], r, CP_RIGHT);
     // recortar em baixo
-    cp_clipplane( &v2[poligonoAtual], p[poligonoAtual], r, CP_BOTTOM );
+    cp_clipplane(&v2[poligonoAtual], p[poligonoAtual], r, CP_BOTTOM);
     // recortar em cima
-    cp_clipplane( &v2[poligonoAtual], p[poligonoAtual], r, CP_TOP );
+    cp_clipplane(&v2[poligonoAtual], p[poligonoAtual], r, CP_TOP);
 }
 
 // funcao que calcula o produto interno do vetores, formados por 3 pontos
@@ -187,9 +199,21 @@ void drawBitmapText(char *string,float x,float y)
 {
   char *c;
   glRasterPos2f(x,y);
-  for (c=string; *c != '\0'; c++)   {
+  for (c=string; *c != '\0'; c++)
     glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, *c);
-  }
+}
+
+void desenhaJanelaRecorte()
+{
+    // (cinza)
+    glColor3f(0.9, 0.9, 0.9);
+    glBegin(GL_LINE_LOOP);
+      glVertex2i((int)clipRect.l, (int)clipRect.b);
+      glVertex2i((int)clipRect.l, (int)clipRect.t);
+      glVertex2i((int)clipRect.r, (int)clipRect.t);
+      glVertex2i((int)clipRect.r, (int)clipRect.b);
+    glEnd();
+    glFlush();
 }
 
 int codificaPonto(double x, double y)
@@ -209,15 +233,34 @@ int codificaPonto(double x, double y)
     return cod;
 }
 
-void comparaCodigos(struct point (*temp)[2])
+void trocaPontos(struct point (*pontos)[2], int linha)
 {
-    int i, j, cod;
+    struct point temp;
+
+    temp = pontos[linha][0];
+    pontos[linha][0] = pontos[linha][1];
+    pontos[linha][1] = temp;
+}
+
+void trocaCodigos(int (*codigos)[2], int linha)
+{
+    int temp;
+
+    temp = codigos[linha][0];
+    codigos[linha][0] = codigos[linha][1];
+    codigos[linha][1] = temp;
+}
+
+void comparaCodigos(struct point (*temp)[2], int side)
+{
+    int i;
+    float m;
 
     for(i = 0; i < NUMLINHAS; i++)
     {
         if ((codigos[i][0] | codigos[i][1]) == 0)
             continue;
-        else if((codigos[i][0] & codigos[i][1] != 0))
+        else if((codigos[i][0] & codigos[i][1]) != 0)
         {
             temp[i][0].x = -1;
             temp[i][0].y = -1;
@@ -226,7 +269,48 @@ void comparaCodigos(struct point (*temp)[2])
         }
         else
         {
-            cod = codigos[i][0] >> 1;
+            if((codigos[i][0]) == 0)
+            {
+                trocaPontos(temp, i);
+                trocaCodigos(codigos, i);
+            }
+
+            if (temp[i][1].x != temp[i][0].x)
+                m = (temp[i][1].y - temp[i][0].y) / (temp[i][1].x - temp[i][0].x);
+
+            switch(side)
+            {
+                case CL_LEFT:
+                    if(codigos[i][0] & 1)
+                    {
+                        temp[i][0].y += m * (clipRect.l - temp[i][0].x);
+                        temp[i][0].x = clipRect.l;
+                        codigos[i][0] = codificaPonto(temp[i][0].x, temp[i][0].y);
+                    }
+                case CL_RIGHT:
+                    if(codigos[i][0] & 2)
+                    {
+                        temp[i][0].y += m * (clipRect.r - temp[i][0].x);
+                        temp[i][0].x = clipRect.r;
+                        codigos[i][0] = codificaPonto(temp[i][0].x, temp[i][0].y);
+                    }
+                case CL_BOTTOM:
+                    if(codigos[i][0] & 4)
+                    {
+                        if(temp[i][1].x != temp[i][0].x)
+                            temp[i][0].x += (clipRect.b - temp[i][0].y) / m;
+                        temp[i][0].y = clipRect.b;
+                        codigos[i][0] = codificaPonto(temp[i][0].x, temp[i][0].y);
+                    }
+                case CL_TOP:
+                    if(codigos[i][0] & 8)
+                    {
+                        if(temp[i][1].x != temp[i][0].x)
+                            temp[i][0].x += (clipRect.t - temp[i][0].y) / m;
+                        temp[i][0].y = clipRect.t;
+                        codigos[i][0] = codificaPonto(temp[i][0].x, temp[i][0].y);
+                    }
+            }
         }
 
     }
@@ -323,19 +407,8 @@ void drawLiang(){
         glFlush();
     }
 
-    // ***** desenhar a janela de recorte
     if (showClipRect)
-    {
-      // (cinza)
-      glColor3f(0.9, 0.9, 0.9);
-      glBegin(GL_LINE_LOOP);
-        glVertex2i((int)clipRect.l, (int)clipRect.b);
-        glVertex2i((int)clipRect.l, (int)clipRect.t);
-        glVertex2i((int)clipRect.r, (int)clipRect.t);
-        glVertex2i((int)clipRect.r, (int)clipRect.b);
-      glEnd();
-      glFlush();
-    }
+        desenhaJanelaRecorte();
 
     // ***** escrever a legenda
     glMatrixMode(GL_MODELVIEW);
@@ -365,7 +438,8 @@ void drawLinesCohen()
         for (i = 0; i < NUMLINHAS; i++)
             for (j = 0; j < 2; j++)
                 codigos[i][j] = codificaPonto(tempLinhas[i][j].x, tempLinhas[i][j].y);
-        comparaCodigos(tempLinhas);
+        for (i = CL_LEFT; i < CL_TOP; i++)
+            comparaCodigos(tempLinhas, i);
        glColor3f(0.0, 0.0, 1.0);
     }
     else
@@ -380,19 +454,8 @@ void drawLinesCohen()
         glFlush();
     }
 
-    // ***** desenhar a janela de recorte
     if (showClipRect)
-    {
-      // (cinza)
-      glColor3f(0.9, 0.9, 0.9);
-      glBegin(GL_LINE_LOOP);
-        glVertex2i((int)clipRect.l, (int)clipRect.b);
-        glVertex2i((int)clipRect.l, (int)clipRect.t);
-        glVertex2i((int)clipRect.r, (int)clipRect.t);
-        glVertex2i((int)clipRect.r, (int)clipRect.b);
-      glEnd();
-      glFlush();
-    }
+        desenhaJanelaRecorte();
 
     // ***** escrever a legenda
     glMatrixMode(GL_MODELVIEW);
@@ -443,20 +506,8 @@ static void display(void)
     glEnd();
     glFlush();
 
-
-    // ***** desenhar a janela de recorte
     if (showClipRect)
-    {
-      // (cinza)
-      glColor3f(0.9, 0.9, 0.9);
-      glBegin(GL_LINE_LOOP);
-        glVertex2i((int)clipRect.l, (int)clipRect.b);
-        glVertex2i((int)clipRect.l, (int)clipRect.t);
-        glVertex2i((int)clipRect.r, (int)clipRect.t);
-        glVertex2i((int)clipRect.r, (int)clipRect.b);
-      glEnd();
-      glFlush();
-    }
+        desenhaJanelaRecorte();
 
     // ***** exibir os vertices do poligono
     if (showVerts) {
@@ -578,8 +629,8 @@ static void keyboardCohen(unsigned char key, int x, int y)
 
 void defineLinhas()
 {
-    vLinha[0][0].x = 2;   vLinha[0][0].y = 9.5;
-    vLinha[0][1].x = 3.5; vLinha[0][1].y = 12;
+    vLinha[0][0].x = 1;   vLinha[0][0].y = 8;
+    vLinha[0][1].x = 5;   vLinha[0][1].y = 12;
 
     vLinha[1][0].x = 4;   vLinha[1][0].y = 7;
     vLinha[1][1].x = 6;   vLinha[1][1].y = 9;
