@@ -232,6 +232,120 @@ void comparaCodigos(struct point (*temp)[2])
     }
 }
 
+
+void drawLiang(){
+    int i,j, u1 = 0, u2 =1, accept = 1;
+    double dx = 0 ,dy = 0,r;
+
+    // limpar a tela
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    // transferir os pontos da linha original para variaveis temporarias
+    // para nao alterar a fonte
+    struct point tempLinhas[NUMLINHAS][2];
+    for (i = 0; i < NUMLINHAS; i++)
+        for (j = 0; j < 2; j++)
+            tempLinhas[i][j] = vLinha[i][j];
+
+    if (doClip)
+    {
+        double p[4],q[4];
+
+        for (i = 0; i < NUMLINHAS; i++){
+            dx = tempLinhas[i][1].x - tempLinhas[i][0].x;
+            dx = tempLinhas[i][1].y - tempLinhas[i][0].y;
+
+            p[0] = -dx;
+            q[0] = tempLinhas[i][i].x - clipRect.l;
+
+            p[1] = dx;
+            q[1] = clipRect.r - tempLinhas[i][i].x;
+
+            p[2] = -dy;
+            q[2] = tempLinhas[i][i].y - clipRect.b;
+
+            p[3] = dy;
+            q[3] = clipRect.t - tempLinhas[i][i].y;
+
+            for(j = 0; j < 4; j++){
+                if(p[j] == 0){
+                    if(q[j] < 0)
+                        accept = 0; //fazer metodo pra descartar linha;
+                }
+                else{
+
+                    r = q[j]/p[j];
+
+                    if(p[j] < 0){
+                        if(r < p[j]){
+                            u1 = p[j];
+                        }
+                        else
+                            u1 = r;
+                    }
+                    else{
+                        if(r < u2)
+                           u2 = r;
+                    }
+
+                    if(u1 < u2)
+                        accept = 0;
+                }
+
+             }
+
+            if(accept){
+                if(u2 < 1){
+                    vLinha[i][1].x = tempLinhas[i][0].x + u2 * dx;
+                    vLinha[i][1].y = tempLinhas[i][0].y + u2 * dy;
+                }
+
+                if(u1 > 0){
+                    vLinha[i][0].x = tempLinhas[i][0].x + u1 * dx;
+                    vLinha[i][0].y = tempLinhas[i][0].y + u1 * dy;
+                }
+
+           }
+        }
+
+        //comparaCodigos(tempLinhas);
+       glColor3f(0.0, 0.0, 1.0);
+    }
+    else
+        glColor3f(1.0, 0.0, 0.0);
+
+    for(i = 0; i < NUMLINHAS; i++)
+    {
+        glBegin(GL_LINE_LOOP);
+          glVertex2d((int)tempLinhas[i][0].x, (int)tempLinhas[i][0].y);
+          glVertex2d((int)tempLinhas[i][1].x, (int)tempLinhas[i][1].y);
+        glEnd();
+        glFlush();
+    }
+
+    // ***** desenhar a janela de recorte
+    if (showClipRect)
+    {
+      // (cinza)
+      glColor3f(0.9, 0.9, 0.9);
+      glBegin(GL_LINE_LOOP);
+        glVertex2i((int)clipRect.l, (int)clipRect.b);
+        glVertex2i((int)clipRect.l, (int)clipRect.t);
+        glVertex2i((int)clipRect.r, (int)clipRect.t);
+        glVertex2i((int)clipRect.r, (int)clipRect.b);
+      glEnd();
+      glFlush();
+    }
+
+    // ***** escrever a legenda
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+    glColor3f(0.0, 0.0, 0.0);
+    drawBitmapText("ESC : sair | E : exibir/ocultar janela recorte | R : recortar",0.1,0.2);
+    glFlush();
+}
+
+
 void drawLinesCohen()
 {
     int i,j;
@@ -571,7 +685,8 @@ int main(int argc, char *argv[])
     }
     else if (opcao == 2)
     {
-
+        glutDisplayFunc(drawLiang);
+        glutKeyboardFunc(keyboardCohen);
     }
     else
     {
