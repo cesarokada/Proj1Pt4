@@ -295,6 +295,12 @@ void drawLiang(){
              }
 
             if(accept){
+
+                if(tempLinhas[i][0].x < clipRect.l)
+                    tempLinhas[i][0].x = clipRect.l;
+                if(tempLinhas[i][1].x > clipRect.r)
+                    tempLinhas[i][1].x = clipRect.r;
+
                 if(u2 < 1){
                     vLinha[i][1].x = tempLinhas[i][0].x + u2 * dx;
                     vLinha[i][1].y = tempLinhas[i][0].y + u2 * dy;
