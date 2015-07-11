@@ -1,3 +1,8 @@
+/*************************************************************************************
+ Nomes: César Yugo Okada e Guilherme Toquete
+    Projeto 1 Parte 4 - Computação Gráfica
+ ************************************************************************************/
+
 #include <GL/glut.h>
 #include <stdlib.h>
 #include <math.h>
