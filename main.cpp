@@ -380,10 +380,14 @@ void drawLiang(){
 
             if(accept){
 
-                if(tempLinhas[i][0].x < clipRect.l)
+                /*if(tempLinhas[i][0].x < clipRect.l)
                     tempLinhas[i][0].x = clipRect.l;
                 if(tempLinhas[i][1].x > clipRect.r)
                     tempLinhas[i][1].x = clipRect.r;
+                if(tempLinhas[i][0].y > clipRect.b)
+                    tempLinhas[i][0].y = clipRect.b;
+                if(tempLinhas[i][1].y > clipRect.t)
+                    tempLinhas[i][1].y = clipRect.t;*/
 
                 if(u2 < 1){
                     vLinha[i][1].x = tempLinhas[i][0].x + u2 * dx;
@@ -397,8 +401,6 @@ void drawLiang(){
 
            }
         }
-
-        //comparaCodigos(tempLinhas);
        glColor3f(0.0, 0.0, 1.0);
     }
     else
